@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  "Report" tab: title, language, paper, analyst and notes of the PDF report. Texts are message
+  keys (see main-view.fxml).
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      spacing="12" styleClass="tab-content"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.ReportTabController">
+
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Label text="report.intro" wrapText="true" HBox.hgrow="ALWAYS" maxWidth="Infinity"/>
+        <Button text="?" styleClass="help-button" onAction="#onHelp">
+            <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+        </Button>
+    </HBox>
+
+    <GridPane hgap="10" vgap="10" maxWidth="760">
+        <columnConstraints>
+            <ColumnConstraints minWidth="140"/>
+            <ColumnConstraints hgrow="ALWAYS"/>
+        </columnConstraints>
+
+        <Label text="report.title" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="titleField" promptText="report.title.prompt"
+                   GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+
+        <Label text="report.language" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="languageBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="report.paper" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <ComboBox fx:id="paperBox" GridPane.rowIndex="2" GridPane.columnIndex="1">
+            <tooltip><Tooltip text="tip.paper"/></tooltip>
+        </ComboBox>
+
+        <Label text="report.analyst" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="analystField" promptText="report.analyst.prompt"
+                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="report.notes" GridPane.rowIndex="4" GridPane.columnIndex="0"
+               GridPane.valignment="TOP"/>
+        <TextArea fx:id="notesArea" promptText="report.notes.prompt" wrapText="true"
+                  prefRowCount="5" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Button fx:id="saveButton" text="report.save" styleClass="primary-button"
+                onAction="#onSave"/>
+        <Label fx:id="readinessLabel" styleClass="muted" wrapText="true"/>
+    </HBox>
+</VBox>

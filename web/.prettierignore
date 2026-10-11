@@ -1,0 +1,9 @@
+dist/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+package-lock.json
+npm-install.log
+# The user guides keep the layout of the desktop guides, written for their Markdown parser.
+src/help/*.md

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  "Analyses" tab: the annexin V / PI test, with its thresholds dragged on a plot, the cell cycle,
+  and the value compared between the groups. Texts are message keys (see main-view.fxml).
+-->
+
+<?import com.bioinfo.cytoscope.desktop.view.plot.FlowPlot?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="tab-content"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.AnalysisTabController">
+
+    <HBox fx:id="placeholder" spacing="8" alignment="CENTER_LEFT">
+        <Label text="analysis.needsTubes" styleClass="muted" HBox.hgrow="ALWAYS"
+               maxWidth="Infinity"/>
+        <Button text="?" styleClass="help-button" onAction="#onHelp">
+            <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+        </Button>
+    </HBox>
+
+    <ScrollPane fx:id="content" fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="plain-scroll">
+        <VBox spacing="14">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="analysis.preview"/>
+                <ComboBox fx:id="previewBox"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="?" styleClass="help-button" onAction="#onHelp">
+                    <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+                </Button>
+            </HBox>
+
+            <VBox spacing="8" styleClass="analysis-section">
+                <CheckBox fx:id="apoptosisBox" text="analysis.apoptosis"
+                          styleClass="section-title"/>
+                <HBox fx:id="apoptosisBody" spacing="20">
+                    <GridPane hgap="10" vgap="8" maxWidth="460">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <Label text="analysis.parent" GridPane.rowIndex="0"/>
+                        <ComboBox fx:id="apoptosisParentBox" GridPane.rowIndex="0"
+                                  GridPane.columnIndex="1"/>
+                        <Label text="analysis.annexin" GridPane.rowIndex="1"/>
+                        <ComboBox fx:id="annexinBox" GridPane.rowIndex="1"
+                                  GridPane.columnIndex="1"/>
+                        <Label text="analysis.pi" GridPane.rowIndex="2"/>
+                        <ComboBox fx:id="piBox" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+                        <Label text="analysis.annexinThreshold" GridPane.rowIndex="3"/>
+                        <TextField fx:id="annexinField" styleClass="numeric" prefColumnCount="8"
+                                   GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                        <Label text="analysis.piThreshold" GridPane.rowIndex="4"/>
+                        <TextField fx:id="piField" styleClass="numeric" prefColumnCount="8"
+                                   GridPane.rowIndex="4" GridPane.columnIndex="1"/>
+                        <Button text="analysis.suggest" onAction="#onSuggest"
+                                GridPane.rowIndex="5" GridPane.columnIndex="1">
+                            <tooltip><Tooltip text="tip.suggest"/></tooltip>
+                        </Button>
+                        <Label text="analysis.apoptosisCaption" styleClass="muted, small"
+                               wrapText="true" GridPane.rowIndex="6" GridPane.columnSpan="2"/>
+                    </GridPane>
+                    <FlowPlot fx:id="apoptosisPlot"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8" styleClass="analysis-section">
+                <CheckBox fx:id="cellCycleBox" text="analysis.cellCycle"
+                          styleClass="section-title"/>
+                <HBox fx:id="cellCycleBody" spacing="20">
+                    <GridPane hgap="10" vgap="8" maxWidth="460">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="150"/>
+                            <ColumnConstraints hgrow="ALWAYS"/>
+                        </columnConstraints>
+                        <Label text="analysis.parent" GridPane.rowIndex="0"/>
+                        <ComboBox fx:id="cellCycleParentBox" GridPane.rowIndex="0"
+                                  GridPane.columnIndex="1"/>
+                        <Label text="analysis.dna" GridPane.rowIndex="1"/>
+                        <ComboBox fx:id="dnaBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                        <Label text="analysis.cellCycleCaption" styleClass="muted, small"
+                               wrapText="true" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+                        <Label fx:id="cellCycleIssue" styleClass="warning" wrapText="true"
+                               GridPane.rowIndex="3" GridPane.columnSpan="2"/>
+                    </GridPane>
+                    <FlowPlot fx:id="cellCyclePlot"/>
+                </HBox>
+            </VBox>
+
+            <VBox spacing="8" styleClass="analysis-section">
+                <Label text="analysis.comparison" styleClass="section-title"/>
+                <GridPane hgap="10" vgap="8" maxWidth="620">
+                    <columnConstraints>
+                        <ColumnConstraints minWidth="150"/>
+                        <ColumnConstraints hgrow="ALWAYS"/>
+                    </columnConstraints>
+                    <Label text="analysis.metric" GridPane.rowIndex="0"/>
+                    <ComboBox fx:id="metricBox" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
+                    <Label text="analysis.controlGroup" GridPane.rowIndex="1"/>
+                    <ComboBox fx:id="controlBox" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    <Label text="analysis.comparisonCaption" styleClass="muted, small"
+                           wrapText="true" GridPane.rowIndex="2" GridPane.columnSpan="2"/>
+                </GridPane>
+            </VBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

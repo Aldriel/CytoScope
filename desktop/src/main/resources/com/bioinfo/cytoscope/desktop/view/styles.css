@@ -1,0 +1,356 @@
+/*
+ * The text size is set as -fx-font-size on the root of each window (Options > Text size);
+ * every other size is expressed in em so the whole interface scales with it.
+ *
+ * Accent: teal #0f766e, the color of the PDF report. Risks: red (high), orange (medium) and
+ * dark yellow (low), as in the report.
+ */
+
+.app-root, .help-root {
+    -fx-font-size: 13px;
+}
+
+.tab-content {
+    -fx-padding: 0.9em;
+}
+
+.inner-tab {
+    -fx-padding: 0.6em 0 0 0;
+}
+
+.summary {
+    -fx-font-weight: bold;
+    -fx-text-fill: #134e4a;
+}
+
+.bold {
+    -fx-font-weight: bold;
+}
+
+.muted {
+    -fx-text-fill: #5f6b76;
+}
+
+.small {
+    -fx-font-size: 0.9em;
+}
+
+.primary-button {
+    -fx-base: #0f766e;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+}
+
+.help-button {
+    -fx-font-weight: bold;
+    -fx-background-radius: 1em;
+    -fx-min-width: 2em;
+    -fx-min-height: 2em;
+    -fx-padding: 0;
+}
+
+.status-bar {
+    -fx-padding: 0.3em 0.8em 0.3em 0.8em;
+    -fx-background-color: #eef2f6;
+    -fx-border-color: #c9d3dd transparent transparent transparent;
+}
+
+/* Footer: discreet line below the status bar. */
+.app-footer {
+    -fx-padding: 0.25em 0.8em 0.25em 1.5em;
+    -fx-background-color: #f6f8fa;
+    -fx-border-color: #e1e6eb transparent transparent transparent;
+    -fx-font-size: 1.14em;
+    -fx-spacing: 2em;
+}
+
+/* Everything but the licence, centred in the rest of the footer. */
+.footer-main {
+    -fx-hgap: 3em;
+    -fx-vgap: 0.2em;
+}
+
+.app-footer .label, .app-footer .hyperlink {
+    -fx-text-fill: #5f6b77;
+}
+
+.app-footer .hyperlink {
+    -fx-padding: 0 0.2em 0 0.2em;
+    -fx-border-color: transparent;
+}
+
+.app-footer .hyperlink:hover {
+    -fx-text-fill: #0f766e;
+    -fx-underline: true;
+}
+
+.footer-separator {
+    -fx-padding: 0 0.2em 0 0.2em;
+}
+
+.footer-tagline {
+    -fx-font-style: italic;
+}
+
+/* Ko-fi button, in royal blue so that it does not look disabled. */
+.kofi-button {
+    -fx-background-color: #4169e1;
+    -fx-background-radius: 0.5em;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-padding: 0.25em 0.8em 0.25em 0.7em;
+    -fx-graphic-text-gap: 0.45em;
+    -fx-cursor: hand;
+}
+
+.kofi-button:hover {
+    -fx-background-color: #2f54c4;
+}
+
+.kofi-button:focused {
+    -fx-background-color: #2f54c4, #4169e1;
+    -fx-background-insets: 0, 2;
+}
+
+.kofi-cup {
+    -fx-fill: white;
+}
+
+.status-bar .label:error, .list-cell:error {
+    -fx-text-fill: #b00020;
+}
+
+/* ----- Tabs of CytoScope ----- */
+
+.section-title {
+    -fx-font-weight: bold;
+    -fx-font-size: 1.1em;
+    -fx-text-fill: #134e4a;
+}
+
+.warning {
+    -fx-text-fill: #b45309;
+}
+
+.plain-scroll, .plain-scroll > .viewport {
+    -fx-background-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.banner {
+    -fx-padding: 0.5em 0.8em 0.5em 0.8em;
+    -fx-background-color: #e6f4f1;
+    -fx-border-color: transparent transparent transparent #0f766e;
+    -fx-border-width: 0 0 0 0.3em;
+}
+
+.banner:simulated {
+    -fx-background-color: #fff6db;
+    -fx-border-color: transparent transparent transparent #d97706;
+}
+
+.drop-zone {
+    -fx-padding: 3em 1em 3em 1em;
+    -fx-alignment: center;
+    -fx-text-alignment: center;
+    -fx-border-color: #b5bdc5;
+    -fx-border-style: segments(6, 4);
+    -fx-border-width: 2;
+    -fx-border-radius: 0.5em;
+    -fx-text-fill: #5f6b76;
+}
+
+.column-header {
+    -fx-font-weight: bold;
+    -fx-text-fill: #134e4a;
+}
+
+.label.numeric {
+    -fx-alignment: center-right;
+}
+
+.text-field.numeric {
+    -fx-alignment: center-right;
+}
+
+.table-column.numeric {
+    -fx-alignment: center-right;
+}
+
+.matrix .text-field:high {
+    -fx-control-inner-background: #fdecea;
+    -fx-font-weight: bold;
+}
+
+/* Gating hierarchy: one row per population, the population shown highlighted. */
+.hierarchy {
+    -fx-padding: 0 1em 0 0;
+    -fx-border-color: transparent #e1e6eb transparent transparent;
+}
+
+.population-row:selected {
+    -fx-background-color: #d5ece8;
+    -fx-background-radius: 0.3em;
+}
+
+.population {
+    -fx-background-color: transparent;
+    -fx-padding: 0.1em 0.2em 0.1em 0.2em;
+    -fx-cursor: hand;
+}
+
+.population:hover {
+    -fx-underline: true;
+}
+
+.population-row:selected .population {
+    -fx-font-weight: bold;
+}
+
+.tools .toggle-button:selected {
+    -fx-base: #0f766e;
+    -fx-text-fill: white;
+}
+
+.flow-plot {
+    -fx-border-color: #e1e6eb;
+}
+
+.flow-plot:focused {
+    -fx-border-color: #0f766e;
+}
+
+.analysis-section {
+    -fx-padding: 0.6em 0 0.8em 0;
+    -fx-border-color: transparent transparent #e1e6eb transparent;
+}
+
+.stale {
+    -fx-opacity: 0.6;
+}
+
+/* ----- User guide window ----- */
+
+.help-search-bar {
+    -fx-padding: 0.6em 0.8em 0.6em 0.8em;
+    -fx-background-color: #eef2f6;
+    -fx-border-color: transparent transparent #c9d3dd transparent;
+}
+
+.help-content {
+    -fx-background-color: white;
+}
+
+.help-content > .viewport {
+    -fx-background-color: white;
+}
+
+.help-section {
+    -fx-padding: 1.2em 1.6em 2em 1.6em;
+    -fx-spacing: 0.7em;
+    -fx-background-color: white;
+}
+
+.help-title {
+    -fx-font-size: 1.7em;
+    -fx-font-weight: bold;
+    -fx-text-fill: #0f4f4a;
+}
+
+.help-title .help-text {
+    -fx-fill: #0f4f4a;
+}
+
+.help-h2 {
+    -fx-padding: 0.8em 0 0 0;
+}
+
+.help-h2 .help-text, .help-h2 .help-highlight {
+    -fx-font-size: 1.3em;
+    -fx-font-weight: bold;
+    -fx-fill: #0f4f4a;
+}
+
+.help-h3 .help-text, .help-h3 .help-highlight {
+    -fx-font-size: 1.1em;
+    -fx-font-weight: bold;
+}
+
+.help-text {
+    -fx-fill: #1d2329;
+}
+
+.help-bold {
+    -fx-font-weight: bold;
+}
+
+.help-italic {
+    -fx-font-style: italic;
+}
+
+.help-code {
+    -fx-font-family: "Consolas", monospace;
+}
+
+.text.help-code {
+    -fx-fill: #8a1538;
+}
+
+.help-highlight {
+    -fx-background-color: #ffe066;
+    -fx-background-radius: 0.2em;
+    -fx-padding: 0;
+}
+
+TextArea.help-code {
+    -fx-control-inner-background: #f4f6f8;
+    -fx-focus-color: transparent;
+}
+
+TextArea.help-highlight {
+    -fx-control-inner-background: #fff6cc;
+}
+
+.help-note {
+    -fx-padding: 0.6em 0.9em 0.6em 0.9em;
+    -fx-background-color: #e6f4f1;
+    -fx-border-color: transparent transparent transparent #0f766e;
+    -fx-border-width: 0 0 0 0.3em;
+}
+
+.help-list {
+    -fx-spacing: 0.3em;
+    -fx-padding: 0 0 0 0.5em;
+}
+
+.help-list-item {
+    -fx-spacing: 0.5em;
+}
+
+.help-image {
+    -fx-padding: 0.3em;
+    -fx-border-color: #c9d3dd;
+    -fx-background-color: white;
+}
+
+.help-table {
+    -fx-border-color: #c9d3dd;
+}
+
+.help-table-header, .help-table-cell, .help-table-cell-alt {
+    -fx-padding: 0.35em 0.6em 0.35em 0.6em;
+    -fx-border-color: transparent #e1e6eb #e1e6eb transparent;
+}
+
+.help-table-header {
+    -fx-background-color: #d5ece8;
+}
+
+.help-table-header .help-text {
+    -fx-font-weight: bold;
+}
+
+.help-table-cell-alt {
+    -fx-background-color: #f6f8fa;
+}

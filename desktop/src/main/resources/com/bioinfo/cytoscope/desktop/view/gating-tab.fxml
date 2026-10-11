@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  "Gating" tab: the hierarchy of the populations on the left; on the right, the plot of the
+  population shown, on which the gates of its children are drawn and moved. Texts are message
+  keys (see main-view.fxml); the hierarchy is built by the controller.
+-->
+
+<?import com.bioinfo.cytoscope.desktop.view.plot.FlowPlot?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.ToggleButton?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      styleClass="tab-content"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.GatingTabController">
+
+    <HBox fx:id="placeholder" spacing="8" alignment="CENTER_LEFT">
+        <Label text="gating.needsTubes" styleClass="muted" HBox.hgrow="ALWAYS"
+               maxWidth="Infinity"/>
+        <Button text="?" styleClass="help-button" onAction="#onHelp">
+            <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+        </Button>
+    </HBox>
+
+    <HBox fx:id="content" spacing="16" VBox.vgrow="ALWAYS">
+        <VBox spacing="6" styleClass="hierarchy" prefWidth="300" minWidth="240">
+            <Label text="gating.hierarchy" styleClass="section-title"/>
+            <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="plain-scroll">
+                <VBox fx:id="populationList" spacing="2"/>
+            </ScrollPane>
+            <Label text="gating.shared" styleClass="muted, small" wrapText="true"/>
+        </VBox>
+
+        <VBox spacing="8" HBox.hgrow="ALWAYS">
+            <HBox spacing="8" alignment="CENTER_LEFT">
+                <Label text="gating.tube"/>
+                <ComboBox fx:id="tubeBox"/>
+                <Region HBox.hgrow="ALWAYS"/>
+                <Button text="?" styleClass="help-button" onAction="#onHelp">
+                    <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+                </Button>
+            </HBox>
+            <FlowPane hgap="8" vgap="6" alignment="CENTER_LEFT">
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="gating.x"/>
+                    <ComboBox fx:id="xBox"/>
+                    <ComboBox fx:id="xScaleBox">
+                        <tooltip><Tooltip text="tip.scale"/></tooltip>
+                    </ComboBox>
+                </HBox>
+                <HBox spacing="6" alignment="CENTER_LEFT">
+                    <Label text="gating.y"/>
+                    <ComboBox fx:id="yBox"/>
+                    <ComboBox fx:id="yScaleBox">
+                        <tooltip><Tooltip text="tip.scale"/></tooltip>
+                    </ComboBox>
+                </HBox>
+            </FlowPane>
+            <HBox spacing="4" alignment="CENTER_LEFT" styleClass="tools">
+                <ToggleButton fx:id="selectTool" text="gating.tool.SELECT"/>
+                <ToggleButton fx:id="rectangleTool" text="gating.tool.RECTANGLE"/>
+                <ToggleButton fx:id="polygonTool" text="gating.tool.POLYGON"/>
+                <ToggleButton fx:id="quadrantTool" text="gating.tool.QUADRANT"/>
+                <ToggleButton fx:id="intervalTool" text="gating.tool.INTERVAL"/>
+                <Label fx:id="toolHint" styleClass="muted, small" wrapText="true"/>
+            </HBox>
+            <FlowPlot fx:id="plot"/>
+            <Label fx:id="plotCaption" styleClass="muted, small"/>
+        </VBox>
+    </HBox>
+</VBox>

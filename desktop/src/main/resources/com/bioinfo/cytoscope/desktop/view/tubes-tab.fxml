@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  "Tubes" tab: loading of the FCS files or of an example, then the role, group and dose of each
+  tube. Texts are message keys (see main-view.fxml); the rows of the table are built by the
+  controller.
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:id="root" spacing="10" styleClass="tab-content"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.TubesTabController">
+
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Button fx:id="openButton" text="tubes.open" styleClass="primary-button"
+                onAction="#onOpen"/>
+        <Label text="tubes.examples" styleClass="muted"/>
+        <FlowPane fx:id="examplePane" hgap="8" vgap="6" HBox.hgrow="ALWAYS">
+            <Button text="example.U87_APOPTOSIS" onAction="#onApoptosisExample"/>
+            <Button text="example.U87_CELL_CYCLE" onAction="#onCellCycleExample"/>
+            <Button text="example.CADMIUM" onAction="#onCadmiumExample"/>
+        </FlowPane>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="?" styleClass="help-button" onAction="#onHelp">
+            <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+        </Button>
+    </HBox>
+
+    <HBox fx:id="banner" spacing="6" alignment="CENTER_LEFT" styleClass="banner">
+        <Label fx:id="bannerLabel" wrapText="true"/>
+        <Hyperlink fx:id="datasetLink" text="tubes.dataset" onAction="#onOpenDataset"
+                   minWidth="-Infinity"/>
+    </HBox>
+
+    <Label fx:id="dropLabel" text="tubes.drop" styleClass="drop-zone" wrapText="true"
+           maxWidth="Infinity"/>
+    <Label fx:id="summaryLabel" styleClass="muted"/>
+
+    <ScrollPane fx:id="tubeScroll" fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="plain-scroll">
+        <GridPane fx:id="tubeGrid" hgap="10" vgap="6" styleClass="tube-grid"/>
+    </ScrollPane>
+</VBox>

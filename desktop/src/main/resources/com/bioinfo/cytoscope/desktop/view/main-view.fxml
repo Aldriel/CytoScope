@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Main window: menu bar, one tab per step of the analysis (each in its own FXML file), status bar
+  and footer.
+
+  Texts are message keys of i18n/messages_<lang>.properties, translated (and re-translated when
+  the language changes) by ViewTranslator. Values that are not keys are displayed as written.
+-->
+
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Menu?>
+<?import javafx.scene.control.MenuBar?>
+<?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ProgressIndicator?>
+<?import javafx.scene.control.SeparatorMenuItem?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:id="root" styleClass="app-root"
+            fx:controller="com.bioinfo.cytoscope.desktop.controller.MainController">
+
+    <top>
+        <MenuBar fx:id="menuBar">
+            <Menu text="menu.file">
+                <MenuItem text="menu.file.new" accelerator="Shortcut+N" onAction="#onNew"/>
+                <MenuItem text="menu.file.open" accelerator="Shortcut+O" onAction="#onOpen"/>
+                <Menu text="menu.file.examples">
+                    <MenuItem text="example.U87_APOPTOSIS" onAction="#onApoptosisExample"/>
+                    <MenuItem text="example.U87_CELL_CYCLE" onAction="#onCellCycleExample"/>
+                    <MenuItem text="example.CADMIUM" onAction="#onCadmiumExample"/>
+                </Menu>
+                <SeparatorMenuItem/>
+                <MenuItem text="menu.file.report" accelerator="Shortcut+S"
+                          onAction="#onSaveReport"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="menu.file.quit" accelerator="Shortcut+Q" onAction="#onQuit"/>
+            </Menu>
+            <Menu text="menu.options">
+                <Menu fx:id="languageMenu" text="menu.options.language"/>
+                <Menu fx:id="textSizeMenu" text="menu.options.textSize"/>
+            </Menu>
+            <Menu text="menu.help">
+                <MenuItem text="menu.help.guide" accelerator="F1" onAction="#onHelp"/>
+                <MenuItem text="menu.help.shortcuts" onAction="#onShortcuts"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="menu.help.fcsStandard" onAction="#onOpenFcsStandard"/>
+                <MenuItem text="menu.help.dataset" onAction="#onOpenDataset"/>
+                <SeparatorMenuItem/>
+                <MenuItem text="menu.help.about" onAction="#onAbout"/>
+            </Menu>
+        </MenuBar>
+    </top>
+
+    <center>
+        <TabPane fx:id="mainTabs" tabClosingPolicy="UNAVAILABLE">
+            <Tab text="tab.tubes">
+                <fx:include fx:id="tubesTab" source="tubes-tab.fxml"/>
+            </Tab>
+            <Tab text="tab.compensation">
+                <fx:include fx:id="compensationTab" source="compensation-tab.fxml"/>
+            </Tab>
+            <Tab text="tab.gating">
+                <fx:include fx:id="gatingTab" source="gating-tab.fxml"/>
+            </Tab>
+            <Tab text="tab.analysis">
+                <fx:include fx:id="analysisTab" source="analysis-tab.fxml"/>
+            </Tab>
+            <Tab text="tab.results">
+                <fx:include fx:id="resultsTab" source="results-tab.fxml"/>
+            </Tab>
+            <Tab text="tab.report">
+                <fx:include fx:id="reportTab" source="report-tab.fxml"/>
+            </Tab>
+        </TabPane>
+    </center>
+
+    <bottom>
+        <VBox>
+            <HBox spacing="8" alignment="CENTER_LEFT" styleClass="status-bar">
+                <ProgressIndicator fx:id="busyIndicator" prefWidth="18" prefHeight="18"/>
+                <Label fx:id="statusLabel"/>
+            </HBox>
+            <fx:include fx:id="footer" source="footer.fxml"/>
+        </VBox>
+    </bottom>
+</BorderPane>

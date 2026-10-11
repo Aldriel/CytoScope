@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  "Results" tab: the values of each tube, the comparison of the groups (ANOVA and Dunnett's test)
+  and the dose-response curve. Texts are message keys (see main-view.fxml); the tables and charts
+  are filled by the controller.
+-->
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Region?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      spacing="10" styleClass="tab-content"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.ResultsTabController">
+
+    <HBox spacing="8" alignment="CENTER_LEFT">
+        <Button fx:id="refreshButton" text="results.refresh" onAction="#onRefresh"/>
+        <Label fx:id="stateLabel" styleClass="muted"/>
+        <Region HBox.hgrow="ALWAYS"/>
+        <Button text="?" styleClass="help-button" onAction="#onHelp">
+            <tooltip><Tooltip text="tip.tabHelp"/></tooltip>
+        </Button>
+    </HBox>
+
+    <Label fx:id="placeholderLabel" styleClass="muted" wrapText="true"/>
+
+    <ScrollPane fx:id="content" fitToWidth="true" VBox.vgrow="ALWAYS" styleClass="plain-scroll">
+        <VBox spacing="10">
+            <Label text="results.perTube" styleClass="section-title"/>
+            <TableView fx:id="tubeTable" prefHeight="260"/>
+
+            <Label text="results.comparison" styleClass="section-title"/>
+            <Label fx:id="comparisonLabel" wrapText="true"/>
+            <HBox fx:id="comparisonBox" spacing="20">
+                <TableView fx:id="groupTable" prefHeight="220" HBox.hgrow="ALWAYS"/>
+                <ImageView fx:id="barChart" fitWidth="375" preserveRatio="true" smooth="true"/>
+            </HBox>
+            <Label fx:id="starsLabel" styleClass="muted, small" wrapText="true"/>
+
+            <Label text="results.doseResponse" styleClass="section-title"/>
+            <Label fx:id="curveLabel" wrapText="true"/>
+            <HBox fx:id="curveBox" spacing="20">
+                <TableView fx:id="fitTable" prefHeight="220" HBox.hgrow="ALWAYS"/>
+                <ImageView fx:id="doseChart" fitWidth="375" preserveRatio="true" smooth="true"/>
+            </HBox>
+        </VBox>
+    </ScrollPane>
+</VBox>

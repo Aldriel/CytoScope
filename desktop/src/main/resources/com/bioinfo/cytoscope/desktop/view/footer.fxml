@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+  Footer of the main window: the licence at the left, then, centred in the remaining space on
+  one line (more if the window is narrow), author and contact, availability and the Ko-fi
+  support button. The gaps between them are set in styles.css. Texts are message keys (see
+  main-view.fxml).
+-->
+
+<?import javafx.scene.Group?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Hyperlink?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.layout.FlowPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.shape.SVGPath?>
+
+<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      alignment="CENTER_LEFT" styleClass="app-footer"
+      fx:controller="com.bioinfo.cytoscope.desktop.controller.FooterController">
+
+    <Hyperlink text="footer.license" onAction="#onReadLicense" minWidth="-Infinity">
+        <tooltip><Tooltip text="tip.license"/></tooltip>
+    </Hyperlink>
+
+    <FlowPane alignment="CENTER" styleClass="footer-main" HBox.hgrow="ALWAYS">
+        <HBox alignment="CENTER_LEFT">
+            <Hyperlink fx:id="websiteLink" text="footer.author" onAction="#onOpenWebsite">
+                <tooltip><Tooltip text="tip.website"/></tooltip>
+            </Hyperlink>
+            <Label text="·" styleClass="footer-separator"/>
+            <Hyperlink fx:id="emailLink" onAction="#onWriteEmail">
+                <tooltip><Tooltip text="tip.email"/></tooltip>
+            </Hyperlink>
+        </HBox>
+
+        <Label text="footer.availability" styleClass="footer-tagline"/>
+
+        <Button fx:id="kofiButton" text="footer.kofi" styleClass="kofi-button"
+                onAction="#onSupport">
+            <graphic>
+                <!-- Coffee cup: body and handle. The group sizes the button to the scaled cup. -->
+                <Group>
+                    <SVGPath styleClass="kofi-cup" scaleX="1.3" scaleY="1.3"
+                             content="M1 2h10v4.5A3.5 3.5 0 0 1 7.5 10h-3A3.5 3.5 0 0 1 1 6.5z
+                                      M11 3h1.2a2.2 2.2 0 0 1 0 4.4H11V6.2h1.2a1 1 0 0 0 0-2H11z"/>
+                </Group>
+            </graphic>
+            <tooltip><Tooltip text="tip.kofi"/></tooltip>
+        </Button>
+    </FlowPane>
+</HBox>
