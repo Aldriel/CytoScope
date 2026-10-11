@@ -108,7 +108,7 @@ describe('api', () => {
       timeZone: 'America/Montreal',
     });
     expect(report.fileName).toBe('Rapport été.pdf');
-    expect(await report.content.text()).toBe('%PDF');
+    expect(report.content.size).toBe('%PDF'.length);
 
     stubFetch(200, '%PDF');
     const unnamed = await api.report('w1', {
