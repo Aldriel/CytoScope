@@ -145,7 +145,31 @@ class FcsReaderTest {
         FcsSample sample = FcsReader.read("t", bytes);
         assertArrayEquals(new float[] {1.25f, 2.5f}, sample.column(0));
         assertEquals("a|b", sample.channels().get(0).label());
-        assertEquals("x.fcs", sample.keyword("$fil").orElseThrow());
+        assertTrue(sample.keyword("$fil").isEmpty());
+    }
+
+    @Test
+    void dropsKeywordsThatCanNameAPerson() {
+        byte[] bytes = new FcsBytes().keyword("$PAR", "1").keyword("$TOT", "0")
+                .keyword("$DATATYPE", "F").keyword("$P1N", "FITC-A").keyword("$P1S", "CD4")
+                .keyword("$SPILLOVER", "1,FITC-A,1").keyword("SPILL", "1,FITC-A,1")
+                .keyword("CYTOSCOPE_GROUP", "TMZ")
+                .keyword("$SRC", "Jane Doe").keyword("$OP", "A. Martin")
+                .keyword("$INST", "City Hospital").keyword("$CYT", "Canto")
+                .keyword("PATIENT NAME", "Jane Doe").keyword("TUBE NAME", "Jane Doe")
+                .build();
+        FcsSample sample = FcsReader.read("sample-04", bytes);
+        assertEquals("sample-04", sample.name());
+        assertEquals("CD4", sample.channels().get(0).label());
+        assertEquals("1,FITC-A,1", sample.keyword("$SPILLOVER").orElseThrow());
+        assertEquals("1,FITC-A,1", sample.keyword("SPILL").orElseThrow());
+        assertEquals("TMZ", sample.keyword("CYTOSCOPE_GROUP").orElseThrow());
+        assertEquals("Canto", sample.keyword("$CYT").orElseThrow());
+        assertTrue(sample.keyword("$SRC").isEmpty());
+        assertTrue(sample.keyword("$OP").isEmpty());
+        assertTrue(sample.keyword("$INST").isEmpty());
+        assertTrue(sample.keyword("PATIENT NAME").isEmpty());
+        assertTrue(sample.keyword("TUBE NAME").isEmpty());
     }
 
     @Test

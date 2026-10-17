@@ -78,7 +78,7 @@ public final class FcsReader {
 
         float[][] values = readData(bytes, keywords, channels, (int) eventCount,
                 dataStart, dataEnd);
-        return new FcsSample(name, keywords, channels, values);
+        return new FcsSample(name, FcsPrivacy.redact(keywords), channels, values);
     }
 
     private record Header(String version, long textStart, long textEnd,

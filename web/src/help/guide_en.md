@@ -25,6 +25,8 @@ Your files stay in the memory of the server, without being saved to disk, and ar
 
 CytoScope reads FCS 2.0, 3.0 and 3.1 files (ISAC standard), with integer or floating-point data, up to 50 MB per file. Open several at once with **Open FCS files…**, or drop them on the tab. Files loaded later are added to the first ones.
 
+Words inside the file that can name a person, a patient, an operator or an institution are removed as the file is read. The name shown on screen is the name of the file you opened, so use a sample code.
+
 ## Role, group and dose
 
 CytoScope guesses the role, group and dose of each tube from the file name and its keywords; correct them if needed:

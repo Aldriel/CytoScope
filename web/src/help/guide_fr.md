@@ -25,6 +25,8 @@ Vos fichiers restent dans la mémoire du serveur, sans être enregistrés sur di
 
 CytoScope lit les fichiers FCS 2.0, 3.0 et 3.1 (norme de l’ISAC), en entiers ou en nombres réels, jusqu’à 50 Mo par fichier. Ouvrez-en plusieurs à la fois avec **Ouvrir des fichiers FCS…**, ou déposez-les sur l’onglet. Les fichiers chargés ensuite s’ajoutent aux premiers.
 
+Les mots du fichier qui peuvent nommer une personne, un patient, l’opérateur ou un établissement sont retirés à la lecture. Le nom affiché est celui du fichier que vous ouvrez : utilisez un code d’échantillon.
+
 ## Rôle, groupe et dose
 
 CytoScope devine le rôle, le groupe et la dose de chaque tube d’après le nom du fichier et ses mots-clés ; corrigez-les au besoin :
