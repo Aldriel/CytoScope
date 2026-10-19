@@ -22,6 +22,8 @@ class JsonHandlerTest {
     void translatesExceptionsIntoStatusCodes() {
         assertEquals(new Failure(413, Kind.TOO_LARGE, "big"),
                 JsonHandler.describe(new HttpError(413, "big")));
+        assertEquals(Kind.PAYMENT_REQUIRED,
+                JsonHandler.describe(new HttpError(402, "pay")).kind());
         assertEquals(Kind.UNEXPECTED, JsonHandler.describe(new HttpError(418, "tea")).kind());
         assertEquals(Kind.PARSING, JsonHandler.describe(new FcsFormatException("x")).kind());
         assertEquals(404, JsonHandler.describe(new MissingSampleException("s1")).status());

@@ -8,6 +8,9 @@ import com.bioinfo.cytoscope.fcs.FcsReader;
 import com.bioinfo.cytoscope.fcs.FcsSample;
 import com.bioinfo.cytoscope.fcs.FcsWriter;
 import com.bioinfo.cytoscope.server.api.PlotView;
+import com.bioinfo.cytoscope.server.billing.BillingService;
+import com.bioinfo.cytoscope.server.billing.CreditBook;
+import com.bioinfo.cytoscope.server.billing.StripeClient;
 import com.bioinfo.cytoscope.server.workspace.WorkspaceRegistry;
 import com.bioinfo.cytoscope.service.CytoService;
 import com.bioinfo.cytoscope.service.Example;
@@ -42,7 +45,22 @@ class ApiServerTest {
 
     @BeforeAll
     void start() throws IOException {
-        server = ApiServer.create("127.0.0.1", 0, new CytoService(8), new WorkspaceRegistry());
+        BillingService billing = new BillingService(new CreditBook(), new StripeClient() {
+            @Override
+            public String createCheckoutSession(String priceId, String accessCode,
+                                                String customerEmail, String successUrl,
+                                                String cancelUrl) {
+                return "https://checkout.test/session/" + accessCode;
+            }
+
+            @Override
+            public java.util.Map<String, String> priceMetadata(String priceId) {
+                return java.util.Map.of("credits_monthly", "500", "plan", "individual",
+                        "level", "basic");
+            }
+        });
+        server = ApiServer.create("127.0.0.1", 0, new CytoService(8), new WorkspaceRegistry(),
+                billing);
         server.start();
         base = "http://127.0.0.1:" + server.getAddress().getPort();
     }
@@ -50,6 +68,16 @@ class ApiServerTest {
     @AfterAll
     void stop() {
         server.stop(0);
+    }
+
+    @Test
+    void startsWithAnExplicitPortArgument() throws Exception {
+        HttpServer ephemeral = ApiServer.start("0");
+        try {
+            assertTrue(ephemeral.getAddress().getPort() > 0);
+        } finally {
+            ephemeral.stop(0);
+        }
     }
 
     private HttpResponse<String> send(String method, String path, String body) throws Exception {
@@ -109,6 +137,42 @@ class ApiServerTest {
         assertEquals(204, options.statusCode());
         assertTrue(options.headers().firstValue("Access-Control-Allow-Methods").orElseThrow()
                 .contains("PUT"));
+    }
+
+    @Test
+    void startsCheckoutAndGrantsCreditsFromStripeWebhooks() throws Exception {
+        JsonNode checkout = ok(send("POST", "/api/billing/checkout",
+                "{\"priceId\":\"price_test\",\"email\":\"lab@example.com\","
+                        + "\"successUrl\":\"https://ok\",\"cancelUrl\":\"https://cancel\"}"));
+        String code = checkout.get("accessCode").asText();
+        assertTrue(checkout.get("checkoutUrl").asText().contains(code));
+        JsonNode pending = ok(send("GET", "/api/billing/accounts/" + code, null));
+        assertEquals(0, pending.get("credits").asInt());
+
+        ok(send("POST", "/api/billing/stripe/webhook",
+                "{\"type\":\"checkout.session.completed\",\"data\":{\"object\":{"
+                        + "\"client_reference_id\":\"" + code + "\","
+                        + "\"customer_email\":\"lab@example.com\","
+                        + "\"customer\":\"cus_1\",\"subscription\":\"sub_1\","
+                        + "\"metadata\":{\"price_id\":\"price_test\",\"credits_monthly\":\"500\","
+                        + "\"plan\":\"individual\",\"level\":\"basic\"}}}}"));
+        JsonNode balance = ok(send("GET", "/api/billing/accounts/" + code, null));
+        assertEquals(500, balance.get("credits").asInt());
+        assertEquals("individual", balance.get("plan").asText());
+        assertTrue(balance.get("active").asBoolean());
+        assertError(send("GET", "/api/billing/nope", null), 404, "NOT_FOUND");
+        assertError(send("GET", "/api/billing", null), 404, "NOT_FOUND");
+        assertError(send("GET", "/api/billing/accounts", null), 404, "NOT_FOUND");
+        assertError(send("POST", "/api/billing/checkout",
+                "{\"priceId\":\"\",\"email\":\"a\",\"successUrl\":\"https://ok\","
+                        + "\"cancelUrl\":\"https://cancel\"}"), 400, "INVALID_INPUT");
+        assertError(send("GET", "/api/billing/checkout", null), 405, "INVALID_INPUT");
+        assertError(send("POST", "/api/billing/stripe/other", "{}"), 404, "NOT_FOUND");
+        ok(send("POST", "/api/billing/stripe/webhook",
+                "{\"type\":\"invoice.paid\",\"data\":{\"object\":{"
+                        + "\"subscription\":\"sub_1\",\"customer\":\"cus_1\","
+                        + "\"customer_email\":\"lab@example.com\","
+                        + "\"lines\":{\"data\":[{\"price\":{\"id\":\"price_test\"}}]}}}}"));
     }
 
     @Test

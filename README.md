@@ -118,6 +118,22 @@ calculs, mêmes messages FR/EN, même guide illustré. Les différences tiennent
 - le rapport PDF et les populations exportées sont **téléchargés** ;
 - le guide s'ouvre dans un panneau à droite plutôt que dans une fenêtre.
 
+### Crédits Metabolix (abonnement)
+
+L'API facture l'analyse des fichiers FCS du visiteur (pas les exemples) :
+
+- **essai gratuit** : 5 fichiers sans code d'accès ;
+- ensuite, un **code d'accès** (`accessCode` en paramètre d'upload) débité selon
+  **1 crédit = 100 000 événements** (arrondi au supérieur) ;
+- `POST /api/billing/checkout` démarre Stripe Checkout et renvoie le code ;
+- `POST /api/billing/stripe/webhook` applique `checkout.session.completed`,
+  `invoice.paid` et `customer.subscription.deleted` ;
+- `GET /api/billing/accounts/{code}` lit le solde.
+
+Variables d'environnement : `STRIPE_SECRET_KEY` (sinon Checkout est désactivé). Les produits et
+prix CAD (Basic / Premium / Ultimate × Individual / Group / Unlimited) sont créés dans le compte
+Stripe de Metabolix.
+
 Le guide web : [`guide_fr.md`](web/src/help/guide_fr.md), [`guide_en.md`](web/src/help/guide_en.md).
 Ses captures sont générées en pilotant l'application dans Microsoft Edge :
 

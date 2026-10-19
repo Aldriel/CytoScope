@@ -18,6 +18,7 @@ import com.bioinfo.cytoscope.report.ReportTexts;
 import com.bioinfo.cytoscope.server.HttpError;
 import com.bioinfo.cytoscope.server.JsonHandler;
 import com.bioinfo.cytoscope.server.api.ExperimentJson;
+import com.bioinfo.cytoscope.server.billing.BillingService;
 import com.bioinfo.cytoscope.server.api.PlotView;
 import com.bioinfo.cytoscope.server.api.ResultsView;
 import com.bioinfo.cytoscope.server.api.WorkspaceView;
@@ -63,6 +64,7 @@ public final class WorkspaceController extends JsonHandler {
 
     private final CytoService service;
     private final WorkspaceRegistry registry;
+    private final BillingService billing;
     private final ExampleLibrary examples;
     private final String version;
 
@@ -91,12 +93,15 @@ public final class WorkspaceController extends JsonHandler {
      *
      * @param service the analyses
      * @param registry the workspaces
+     * @param billing credits and free trial
      * @param version version of the application, printed in the reports
      */
-    public WorkspaceController(CytoService service, WorkspaceRegistry registry, String version) {
+    public WorkspaceController(CytoService service, WorkspaceRegistry registry,
+                               BillingService billing, String version) {
         super("/api/workspaces");
         this.service = service;
         this.registry = registry;
+        this.billing = billing;
         this.examples = new ExampleLibrary(service);
         this.version = version;
     }
@@ -183,6 +188,7 @@ public final class WorkspaceController extends JsonHandler {
             requireMethod(request, "POST");
             String fileName = request.param("name", "sample.fcs");
             FcsSample sample = service.read(fileName, request.upload());
+            billing.authorizeUpload(workspace, sample, request.param("accessCode", ""));
             String id = workspace.nextSampleId();
             registry.store(workspace, id, sample);
             workspace.update(e -> service.addSample(e, id, sample));

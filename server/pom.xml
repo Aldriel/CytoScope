@@ -53,6 +53,12 @@
             <plugin>
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
+                <configuration>
+                    <!-- Talks to api.stripe.com; exercised manually / in staging. -->
+                    <excludes>
+                        <exclude>com/bioinfo/cytoscope/server/billing/LiveStripeClient.class</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <id>prepare-agent</id>

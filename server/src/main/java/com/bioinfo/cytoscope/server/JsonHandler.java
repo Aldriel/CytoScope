@@ -55,6 +55,8 @@ public abstract class JsonHandler implements HttpHandler {
         TOO_LARGE,
         /** The server holds too much data from other users for now. */
         BUSY,
+        /** The free trial is spent or the access code has no credits left. */
+        PAYMENT_REQUIRED,
         /** Bug or unexpected failure. */
         UNEXPECTED
     }
@@ -233,6 +235,7 @@ public abstract class JsonHandler implements HttpHandler {
     private static Kind kindOf(int status) {
         return switch (status) {
             case 400, 405 -> Kind.INVALID_INPUT;
+            case 402 -> Kind.PAYMENT_REQUIRED;
             case 404 -> Kind.NOT_FOUND;
             case 413 -> Kind.TOO_LARGE;
             default -> Kind.UNEXPECTED;

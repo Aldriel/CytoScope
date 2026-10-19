@@ -1,5 +1,7 @@
 package com.bioinfo.cytoscope.server;
 
+import com.bioinfo.cytoscope.server.billing.BillingController;
+import com.bioinfo.cytoscope.server.billing.BillingService;
 import com.bioinfo.cytoscope.server.controller.ExampleController;
 import com.bioinfo.cytoscope.server.controller.WorkspaceController;
 import com.bioinfo.cytoscope.server.workspace.WorkspaceRegistry;
@@ -50,11 +52,29 @@ public final class ApiServer {
      */
     public static HttpServer create(String host, int port, CytoService service,
                                     WorkspaceRegistry registry) throws IOException {
+        return create(host, port, service, registry, BillingService.fromEnvironment());
+    }
+
+    /**
+     * Creates a server with every route registered; the caller starts it.
+     *
+     * @param host address to listen on
+     * @param port port to listen on, or 0 for any free port
+     * @param service the analyses the controllers delegate to
+     * @param registry the workspaces
+     * @param billing credits, free trial and Stripe Checkout
+     * @return the server, not started
+     * @throws IOException if the address cannot be bound
+     */
+    public static HttpServer create(String host, int port, CytoService service,
+                                    WorkspaceRegistry registry, BillingService billing)
+            throws IOException {
         HttpServer server = HttpServer.create(new InetSocketAddress(host, port), 0);
         server.createContext("/api/health", new HealthController(registry));
         server.createContext("/api/examples", new ExampleController());
+        server.createContext("/api/billing", new BillingController(billing));
         server.createContext("/api/workspaces",
-                new WorkspaceController(service, registry, VERSION));
+                new WorkspaceController(service, registry, billing, VERSION));
         server.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
         return server;
     }
