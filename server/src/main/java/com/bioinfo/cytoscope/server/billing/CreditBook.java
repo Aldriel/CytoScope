@@ -1,15 +1,28 @@
 package com.bioinfo.cytoscope.server.billing;
 
 import com.bioinfo.cytoscope.server.HttpError;
+import com.bioinfo.cytoscope.server.Json;
+import com.fasterxml.jackson.core.type.TypeReference;
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.logging.Logger;
 
 /**
- * In-memory ledger of access codes and credit balances. Thread-safe for concurrent uploads.
+ * Ledger of access codes and credit balances. Thread-safe for concurrent uploads. When a store
+ * path is set, every change is written atomically to disk so a restart does not wipe balances.
  */
 public final class CreditBook {
+
+    private static final Logger LOG = Logger.getLogger(CreditBook.class.getName());
 
     private static final char[] CODE_ALPHABET =
             "ABCDEFGHJKLMNPQRSTUVWXYZ23456789".toCharArray();
@@ -17,6 +30,25 @@ public final class CreditBook {
 
     private final ConcurrentHashMap<String, AccessAccount> accounts = new ConcurrentHashMap<>();
     private final SecureRandom random = new SecureRandom();
+    private final Path store;
+    private final Object disk = new Object();
+
+    /** Creates an in-memory book that is lost when the process exits. */
+    public CreditBook() {
+        this(null);
+    }
+
+    /**
+     * Creates a book that loads from and saves to {@code store} when the path is not null.
+     *
+     * @param store JSON file of accounts; null for memory only
+     */
+    public CreditBook(Path store) {
+        this.store = store;
+        if (store != null) {
+            load();
+        }
+    }
 
     /**
      * Looks up an account by its access code.
@@ -41,6 +73,7 @@ public final class CreditBook {
         String code = newCode();
         AccessAccount account = new AccessAccount(code, email, 0, 0, "", "", "", "", true);
         accounts.put(code, account);
+        persist();
         return account;
     }
 
@@ -66,6 +99,7 @@ public final class CreditBook {
         AccessAccount granted = new AccessAccount(code, email, allowance, allowance, plan, level,
                 customerId, subscriptionId, true);
         accounts.put(code, granted);
+        persist();
         return granted;
     }
 
@@ -97,6 +131,7 @@ public final class CreditBook {
         }
         AccessAccount updated = found.get().deactivated();
         accounts.put(updated.accessCode(), updated);
+        persist();
         return Optional.of(updated);
     }
 
@@ -132,6 +167,7 @@ public final class CreditBook {
             }
             AccessAccount updated = current.withCredits(current.credits() - credits);
             if (accounts.replace(code, current, updated)) {
+                persist();
                 return updated;
             }
         }
@@ -144,6 +180,59 @@ public final class CreditBook {
      */
     public int size() {
         return accounts.size();
+    }
+
+    /**
+     * Returns the on-disk store, if any.
+     *
+     * @return the path, empty for memory only
+     */
+    public Optional<Path> store() {
+        return Optional.ofNullable(store);
+    }
+
+    private void load() {
+        synchronized (disk) {
+            try {
+                if (!Files.isRegularFile(store)) {
+                    return;
+                }
+                List<AccessAccount> loaded = Json.mapper().readValue(store.toFile(),
+                        new TypeReference<List<AccessAccount>>() {});
+                accounts.clear();
+                for (AccessAccount account : loaded) {
+                    accounts.put(account.accessCode(), account);
+                }
+                LOG.info(() -> "Loaded " + accounts.size() + " credit accounts from " + store);
+            } catch (IOException e) {
+                throw new UncheckedIOException("Cannot load credit accounts from " + store, e);
+            }
+        }
+    }
+
+    private void persist() {
+        if (store == null) {
+            return;
+        }
+        synchronized (disk) {
+            try {
+                Path parent = store.getParent();
+                if (parent != null) {
+                    Files.createDirectories(parent);
+                }
+                Path temp = store.resolveSibling(store.getFileName() + ".tmp");
+                List<AccessAccount> snapshot = new ArrayList<>(accounts.values());
+                Json.mapper().writerWithDefaultPrettyPrinter().writeValue(temp.toFile(), snapshot);
+                try {
+                    Files.move(temp, store, StandardCopyOption.REPLACE_EXISTING,
+                            StandardCopyOption.ATOMIC_MOVE);
+                } catch (IOException atomicUnsupported) {
+                    Files.move(temp, store, StandardCopyOption.REPLACE_EXISTING);
+                }
+            } catch (IOException e) {
+                throw new UncheckedIOException("Cannot save credit accounts to " + store, e);
+            }
+        }
     }
 
     private String newCode() {

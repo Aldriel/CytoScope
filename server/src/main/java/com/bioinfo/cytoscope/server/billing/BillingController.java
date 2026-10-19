@@ -14,11 +14,17 @@ import java.util.Objects;
  *
  * <ul>
  *   <li>{@code POST /api/billing/checkout}: starts Stripe Checkout and mints an access code;
+ *   <li>{@code GET /api/billing/pay}: same, then redirects the browser to Stripe Checkout;
  *   <li>{@code GET /api/billing/accounts/{code}}: returns the credit balance;
  *   <li>{@code POST /api/billing/stripe/webhook}: applies Stripe events.
  * </ul>
  */
 public final class BillingController extends JsonHandler {
+
+    private static final String DEFAULT_SUCCESS =
+            "https://metabolix.ca/pricing/?checkout=success";
+    private static final String DEFAULT_CANCEL =
+            "https://metabolix.ca/pricing/?checkout=cancel";
 
     private final BillingService billing;
 
@@ -32,8 +38,20 @@ public final class BillingController extends JsonHandler {
         this.billing = Objects.requireNonNull(billing, "billing");
     }
 
-    /** Body of {@code POST /api/billing/checkout}. */
-    public record CheckoutRequest(String priceId, String email, String successUrl,
+    /**
+     * Body of {@code POST /api/billing/checkout}. Either {@code priceId} or plan fields.
+     *
+     * @param priceId Stripe price id; optional when plan fields are set
+     * @param plan individual, group or unlimited
+     * @param level basic, premium or ultimate
+     * @param period monthly or annual
+     * @param academic academic discount
+     * @param email buyer email
+     * @param successUrl success redirect
+     * @param cancelUrl cancel redirect
+     */
+    public record CheckoutRequest(String priceId, String plan, String level, String period,
+                                  Boolean academic, String email, String successUrl,
                                   String cancelUrl) {}
 
     @Override
@@ -47,6 +65,12 @@ public final class BillingController extends JsonHandler {
                 requireMethod(request, "POST");
                 requireRoute(request, path, 1, "checkout", "POST");
                 yield checkout(request.json(CheckoutRequest.class));
+            }
+            case "pay" -> {
+                requireMethod(request, "GET");
+                requireRoute(request, path, 1, "pay", "GET");
+                BillingService.CheckoutStart started = startFromQuery(request);
+                yield new RedirectResponse(started.checkoutUrl());
             }
             case "accounts" -> {
                 requireMethod(request, "GET");
@@ -68,12 +92,34 @@ public final class BillingController extends JsonHandler {
     }
 
     private Map<String, Object> checkout(CheckoutRequest body) throws IOException {
-        BillingService.CheckoutStart started = billing.startCheckout(body.priceId(), body.email(),
-                body.successUrl(), body.cancelUrl());
+        BillingService.CheckoutStart started = start(body.priceId(), body.plan(), body.level(),
+                body.period(), Boolean.TRUE.equals(body.academic()), body.email(),
+                first(body.successUrl(), DEFAULT_SUCCESS),
+                first(body.cancelUrl(), DEFAULT_CANCEL));
         Map<String, Object> response = new LinkedHashMap<>();
         response.put("accessCode", started.accessCode());
         response.put("checkoutUrl", started.checkoutUrl());
         return response;
+    }
+
+    private BillingService.CheckoutStart startFromQuery(Request request) throws IOException {
+        return start(request.param("priceId", ""), request.param("plan", ""),
+                request.param("level", ""), request.param("period", "monthly"),
+                Boolean.parseBoolean(request.param("academic", "false")),
+                request.param("email", ""),
+                request.param("successUrl", DEFAULT_SUCCESS),
+                request.param("cancelUrl", DEFAULT_CANCEL));
+    }
+
+    private BillingService.CheckoutStart start(String priceId, String plan, String level,
+                                               String period, boolean academic, String email,
+                                               String successUrl, String cancelUrl)
+            throws IOException {
+        if (priceId != null && !priceId.isBlank()) {
+            return billing.startCheckout(priceId, email, successUrl, cancelUrl);
+        }
+        return billing.startCheckoutForPlan(plan, level, period, academic, email, successUrl,
+                cancelUrl);
     }
 
     private static Map<String, Object> accountView(AccessAccount account) {
@@ -86,6 +132,10 @@ public final class BillingController extends JsonHandler {
         response.put("level", account.level());
         response.put("active", account.active());
         return response;
+    }
+
+    private static String first(String value, String fallback) {
+        return value == null || value.isBlank() ? fallback : value.strip();
     }
 
     /**

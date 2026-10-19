@@ -81,6 +81,13 @@ public abstract class JsonHandler implements HttpHandler {
     public record FileResponse(byte[] content, String contentType, String fileName) {}
 
     /**
+     * HTTP redirect returned by a controller instead of a JSON body.
+     *
+     * @param location absolute or relative URL
+     */
+    public record RedirectResponse(String location) {}
+
+    /**
      * Decoded HTTP request handed to the controllers.
      *
      * @param method HTTP method, in upper case
@@ -195,6 +202,9 @@ public abstract class JsonHandler implements HttpHandler {
             }
             if (payload instanceof FileResponse file) {
                 sendFile(exchange, file);
+            } else if (payload instanceof RedirectResponse redirect) {
+                exchange.getResponseHeaders().set("Location", redirect.location());
+                exchange.sendResponseHeaders(303, -1);
             } else {
                 sendJson(exchange, status, payload);
             }

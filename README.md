@@ -130,9 +130,18 @@ L'API facture l'analyse des fichiers FCS du visiteur (pas les exemples) :
   `invoice.paid` et `customer.subscription.deleted` ;
 - `GET /api/billing/accounts/{code}` lit le solde.
 
-Variables d'environnement : `STRIPE_SECRET_KEY` (sinon Checkout est désactivé). Les produits et
-prix CAD (Basic / Premium / Ultimate × Individual / Group / Unlimited) sont créés dans le compte
-Stripe de Metabolix.
+Variables d'environnement :
+
+- `STRIPE_SECRET_KEY` (sinon Checkout est désactivé) ;
+- `CYTOSCOPE_CREDITS_FILE` (chemin JSON des soldes ; obligatoire en production pour ne pas
+  perdre les crédits au redémarrage, typiquement `/var/lib/cytoscope/credits.json`).
+
+Lien d'achat direct (redirection Stripe) :
+
+`GET /api/billing/pay?plan=individual&level=basic&period=monthly&academic=false`
+
+Les produits et prix CAD (Basic / Premium / Ultimate × Individual / Group / Unlimited) sont créés
+dans le compte Stripe de Metabolix.
 
 Le guide web : [`guide_fr.md`](web/src/help/guide_fr.md), [`guide_en.md`](web/src/help/guide_en.md).
 Ses captures sont générées en pilotant l'application dans Microsoft Edge :

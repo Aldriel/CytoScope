@@ -6,6 +6,7 @@ import com.bioinfo.cytoscope.server.Json;
 import com.bioinfo.cytoscope.server.workspace.Workspace;
 import com.fasterxml.jackson.databind.JsonNode;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +20,7 @@ public final class BillingService {
 
     private final CreditBook book;
     private final StripeClient stripe;
+    private final PriceCatalog prices;
     private final ConcurrentHashMap<String, AtomicInteger> trialUploads =
             new ConcurrentHashMap<>();
 
@@ -29,19 +31,36 @@ public final class BillingService {
      * @param stripe Stripe client; may be {@link StripeClient#disabled()}
      */
     public BillingService(CreditBook book, StripeClient stripe) {
-        this.book = Objects.requireNonNull(book, "book");
-        this.stripe = Objects.requireNonNull(stripe, "stripe");
+        this(book, stripe, PriceCatalog.cad());
     }
 
     /**
-     * Builds a service from environment variables ({@code STRIPE_SECRET_KEY}).
+     * Creates the service with an explicit price catalog.
+     *
+     * @param book ledger of access codes
+     * @param stripe Stripe client
+     * @param prices Stripe price ids
+     */
+    public BillingService(CreditBook book, StripeClient stripe, PriceCatalog prices) {
+        this.book = Objects.requireNonNull(book, "book");
+        this.stripe = Objects.requireNonNull(stripe, "stripe");
+        this.prices = Objects.requireNonNull(prices, "prices");
+    }
+
+    /**
+     * Builds a service from environment variables ({@code STRIPE_SECRET_KEY},
+     * {@code CYTOSCOPE_CREDITS_FILE}).
      *
      * @return the service
      */
     public static BillingService fromEnvironment() {
         StripeClient client = StripeClient.fromSecret(System.getenv("STRIPE_SECRET_KEY"))
                 .orElseGet(StripeClient::disabled);
-        return new BillingService(new CreditBook(), client);
+        String creditsFile = System.getenv("CYTOSCOPE_CREDITS_FILE");
+        CreditBook book = creditsFile == null || creditsFile.isBlank()
+                ? new CreditBook()
+                : new CreditBook(Path.of(creditsFile.strip()));
+        return new BillingService(book, client);
     }
 
     /**
@@ -72,6 +91,27 @@ public final class BillingService {
         String url = stripe.createCheckoutSession(priceId, pending.accessCode(), email,
                 successUrl, cancelUrl);
         return new CheckoutStart(pending.accessCode(), url);
+    }
+
+    /**
+     * Starts Checkout from a Metabolix plan selection.
+     *
+     * @param plan individual, group or unlimited
+     * @param level basic, premium or ultimate
+     * @param period monthly or annual
+     * @param academic true for the academic tier
+     * @param email optional buyer email
+     * @param successUrl success redirect
+     * @param cancelUrl cancel redirect
+     * @return access code and Checkout URL
+     * @throws IOException if Stripe fails
+     */
+    public CheckoutStart startCheckoutForPlan(String plan, String level, String period,
+                                              boolean academic, String email, String successUrl,
+                                              String cancelUrl) throws IOException {
+        String tier = academic ? "academic" : "standard";
+        return startCheckout(prices.priceId(plan, level, period, tier), email, successUrl,
+                cancelUrl);
     }
 
     /**

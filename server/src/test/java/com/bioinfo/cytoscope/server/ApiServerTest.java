@@ -173,6 +173,13 @@ class ApiServerTest {
                         + "\"subscription\":\"sub_1\",\"customer\":\"cus_1\","
                         + "\"customer_email\":\"lab@example.com\","
                         + "\"lines\":{\"data\":[{\"price\":{\"id\":\"price_test\"}}]}}}}"));
+
+        HttpResponse<String> pay = CLIENT.send(HttpRequest.newBuilder(URI.create(base
+                        + "/api/billing/pay?plan=individual&level=basic&period=monthly"))
+                .GET().build(), BodyHandlers.ofString());
+        assertEquals(303, pay.statusCode(), pay.body());
+        assertTrue(pay.headers().firstValue("Location").orElseThrow()
+                .contains("checkout.test"));
     }
 
     @Test

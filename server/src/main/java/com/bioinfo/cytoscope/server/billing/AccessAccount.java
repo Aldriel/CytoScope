@@ -1,5 +1,6 @@
 package com.bioinfo.cytoscope.server.billing;
 
+import java.util.Locale;
 import java.util.Objects;
 
 /**
@@ -43,7 +44,8 @@ public record AccessAccount(
     }
 
     private static String requireCode(String accessCode) {
-        String code = Objects.requireNonNull(accessCode, "accessCode").strip();
+        String code = Objects.requireNonNull(accessCode, "accessCode").strip()
+                .toUpperCase(Locale.ROOT);
         if (code.isEmpty()) {
             throw new IllegalArgumentException("accessCode is blank");
         }
