@@ -69,8 +69,10 @@ Wants=network-online.target
 [Service]
 User=cytoscope
 Environment=PORT=7072
+EnvironmentFile=-/etc/cytoscope/stripe.env
 # The FCS files of the visitors stay in memory for 30 minutes; -Xmx still leaves room for the
 # system, Caddy and the other applications of the server.
+# Optional Stripe keys in /etc/cytoscope/stripe.env: STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET.
 ExecStart=/usr/bin/java -Xms128m -Xmx768m -Djava.awt.headless=true \\
     -cp "$APP/lib/*" com.bioinfo.cytoscope.server.ApiServer
 Restart=always
